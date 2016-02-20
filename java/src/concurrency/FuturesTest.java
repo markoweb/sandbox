@@ -18,10 +18,11 @@ public class FuturesTest {
     @Before
     public void setUp() {
         dataProvider = new DataProvider();
+        dataProvider.setDebug(true);
     }
 
     @Test
-    public void transformTest() {
+    public void transformTest() throws Exception {
         ListenableFuture<Integer> future1 = dataProvider.getIntFuture(2);
         AsyncFunction<Integer, Integer> asyncFunction = new AsyncFunction<Integer, Integer>() {
             @Override
@@ -43,21 +44,18 @@ public class FuturesTest {
             }
         });
         // wait for threads
-        try {
-            future2.get();
-        } catch (Exception e) {
-            Assert.fail(e.toString());
-        }
+        System.out.println("Waiting for results in thread: " + Thread.currentThread().getName());
+        future2.get();
     }
 
     @Test
-    public void allAsListTest() {
+    public void allAsListTest() throws Exception {
         List<ListenableFuture<Integer>> futures = new ArrayList<ListenableFuture<Integer>>();
         futures.add(dataProvider.getIntFuture(1));
         futures.add(dataProvider.getIntFuture(2));
         futures.add(dataProvider.getIntFuture(3));
         futures.add(dataProvider.getIntFuture(4));
-        futures.add(dataProvider.getIntFuture(5, false));
+        futures.add(dataProvider.getIntFuture(5));
 
         ListenableFuture<List<Integer>> future = Futures.allAsList(futures);
         Futures.addCallback(future, new FutureCallback<List<Integer>>() {
@@ -69,15 +67,38 @@ public class FuturesTest {
             @Override
             public void onFailure(Throwable t) {
                 System.err.println("FAILURE");
-//                Assert.fail("Computation should not fail");
+                Assert.fail("Computation should not fail");
             }
         });
         // wait for threads
-        try {
-//            future.get();
-            Thread.sleep(15000);
-        } catch (Exception e) {
-//            Assert.fail(e.toString());
-        }
+        System.out.println("Waiting for results in thread: " + Thread.currentThread().getName());
+        future.get();
+    }
+
+    @Test
+    public void successfulAsListTest() throws Exception{
+        List<ListenableFuture<Integer>> futures = new ArrayList<ListenableFuture<Integer>>();
+        futures.add(dataProvider.getIntFuture(1));
+        futures.add(dataProvider.getIntFuture(2));
+        futures.add(dataProvider.getIntFuture(3, false));
+        futures.add(dataProvider.getIntFuture(4));
+        futures.add(dataProvider.getIntFuture(5, false));
+
+        ListenableFuture<List<Integer>> future = Futures.successfulAsList(futures);
+        Futures.addCallback(future, new FutureCallback<List<Integer>>() {
+            @Override
+            public void onSuccess(List<Integer> result) {
+                System.out.println("SUCCESS");
+            }
+
+            @Override
+            public void onFailure(Throwable t) {
+                System.err.println("FAILURE");
+                Assert.fail("Computation should not fail");
+            }
+        });
+        // wait for threads
+        System.out.println("Waiting for results in thread: " + Thread.currentThread().getName());
+        future.get();
     }
 }
