@@ -11,6 +11,7 @@ import java.util.concurrent.Executors;
 public class DataProvider {
 
     private static final int THREADS = 10;
+    private static final int COMPUTATION_DELAY = 3000;
     private final ListeningExecutorService executor;
 
     public DataProvider() {
@@ -18,14 +19,24 @@ public class DataProvider {
         this.executor = MoreExecutors.listeningDecorator(pool);
     }
 
-    public int getInt(int input) {
+    public int getInt(int input) throws InterruptedException {
+        System.out.println("Start computation, thread:" + Thread.currentThread().getName());
+        Thread.sleep(COMPUTATION_DELAY);
+        System.out.println("Finish computation, thread:" + Thread.currentThread().getName());
         return ++input;
     }
 
     public ListenableFuture<Integer> getIntFuture(final int input) {
+        return getIntFuture(input, true);
+    }
+
+    public ListenableFuture<Integer> getIntFuture(final int input, final boolean success) {
+        System.out.println("Init computation, thread:" + Thread.currentThread().getName());
         return executor.submit(new Callable<Integer>() {
             @Override
             public Integer call() throws Exception {
+                if (! success)
+                    throw new Exception("Unsuccessful computation");
                 return getInt(input);
             }
         });
