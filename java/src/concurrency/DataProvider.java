@@ -13,16 +13,27 @@ public class DataProvider {
     private static final int THREADS = 10;
     private static final int COMPUTATION_DELAY = 3000;
     private final ListeningExecutorService executor;
+    private boolean debug = false;
 
     public DataProvider() {
         ExecutorService pool = Executors.newFixedThreadPool(THREADS);
         this.executor = MoreExecutors.listeningDecorator(pool);
     }
 
+    public boolean isDebug() {
+        return debug;
+    }
+
+    public void setDebug(boolean debug) {
+        this.debug = debug;
+    }
+
     public int getInt(int input) throws InterruptedException {
-        System.out.println("Start computation, thread:" + Thread.currentThread().getName());
+        if (debug)
+            System.out.println("Start computation, thread: " + Thread.currentThread().getName());
         Thread.sleep(COMPUTATION_DELAY);
-        System.out.println("Finish computation, thread:" + Thread.currentThread().getName());
+        if (debug)
+            System.out.println("Finish computation, thread: " + Thread.currentThread().getName());
         return ++input;
     }
 
@@ -31,7 +42,8 @@ public class DataProvider {
     }
 
     public ListenableFuture<Integer> getIntFuture(final int input, final boolean success) {
-        System.out.println("Init computation, thread:" + Thread.currentThread().getName());
+        if (debug)
+            System.out.println("Init computation, thread: " + Thread.currentThread().getName());
         return executor.submit(new Callable<Integer>() {
             @Override
             public Integer call() throws Exception {
