@@ -19,7 +19,7 @@ public class SuccessfulnessTest {
     }
 
     @Test
-    public void successTest() {
+    public void successTest() throws Exception {
         ListenableFuture<Integer> future = dataProvider.getIntFuture(1, true);
         Futures.addCallback(future, new FutureCallback<Integer>() {
             @Override
@@ -34,11 +34,7 @@ public class SuccessfulnessTest {
             }
         });
         // wait for threads
-        try {
-            future.get();
-        } catch (Exception e) {
-            Assert.fail(e.toString());
-        }
+        future.get();
     }
 
     @Test(expected = ExecutionException.class)
