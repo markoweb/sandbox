@@ -9,7 +9,7 @@ import org.junit.Test;
 
 import java.util.concurrent.ExecutionException;
 
-public class SuccessfulnessTest {
+public class ExceptionsTest {
 
     private DataProvider dataProvider;
 
