@@ -7,6 +7,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
 
 public class ExceptionsTest {
@@ -54,5 +55,12 @@ public class ExceptionsTest {
         });
         // wait for threads
         future.get();
+    }
+
+    @Test(expected = CancellationException.class)
+    public void cancellationTest() throws Exception {
+        ListenableFuture<Integer> listenableFuture = dataProvider.getIntFuture(1, false);
+        listenableFuture.cancel(true);
+        listenableFuture.get();
     }
 }
