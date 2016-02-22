@@ -1,0 +1,66 @@
+@startuml
+
+create System
+
+== Initialization ==
+
+create preloader.Preloader
+System -> preloader.Preloader
+
+create FutureTask
+preloader.Preloader -> FutureTask
+
+create Callable
+FutureTask -> Callable
+
+create Thread
+preloader.Preloader -> Thread: FutureTask
+
+== Preload data ==
+
+System -> preloader.Preloader: start()
+activate preloader.Preloader
+
+preloader.Preloader -> Thread: start()
+activate Thread
+deactivate preloader.Preloader
+
+Thread -> Thread: alocate sys. resources
+activate Thread #FFBBBB
+
+Thread -> FutureTask: run()
+activate FutureTask #FFBBBB
+
+FutureTask -> Callable: call()
+activate Callable #FFBBBB
+
+Callable -> DataProvider:loadProductInfo()
+activate DataProvider #FFBBBB
+||70||
+DataProvider --> Callable
+deactivate DataProvider
+
+Callable --> FutureTask
+destroy Callable
+
+FutureTask --> FutureTask: save results
+
+deactivate FutureTask
+deactivate Thread
+destroy Thread
+
+== Retrieve data ==
+
+System -> preloader.Preloader: get()
+activate preloader.Preloader
+
+preloader.Preloader -> FutureTask: get()
+activate FutureTask
+
+FutureTask --> preloader.Preloader
+deactivate FutureTask
+
+preloader.Preloader --> System
+deactivate preloader.Preloader
+
+@enduml
